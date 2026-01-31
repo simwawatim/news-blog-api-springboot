@@ -1,6 +1,9 @@
 package blog.blog.Response;
 
 
+import java.util.List;
+
+import blog.blog.DTOs.PostResponseDTO;
 import lombok.*;
 
 @Getter
