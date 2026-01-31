@@ -96,4 +96,20 @@ public class UserController {
         );
     }
 
+    @PostMapping("/{myId}/follow/{otherId}")
+    public ResponseEntity<ApiResponse<Object>> followUser (
+        @PathVariable String myId,
+        @PathVariable String otherId
+    ){
+        String results = userService.followUser(myId, otherId);
+        return ResponseEntity.ok(
+            ApiResponse.builder()
+                .status("success")
+                .status_code(200)
+                .message(results)
+                .data(null)
+                .build()
+        );
+    }
+
 }

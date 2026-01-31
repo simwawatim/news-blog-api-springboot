@@ -94,4 +94,18 @@ public class UserService {
         userRepository.delete(user);
     }
 
+    public String followUser(String myId, String userToFollowId){
+        if (myId.equals(userToFollowId)){
+            return "You cannot follow yourself!";
+        }
+
+        User me = userRepository.findById(myId).orElseThrow(() -> new UserNotFoundException("User following not found."));
+        User other = userRepository.findById(userToFollowId).orElseThrow(() -> new UserNotFoundException("User to follow not found"));
+
+        me.getFollowing().add(other);
+        userRepository.save(me);
+
+        return "Followed successfully!";
+    }
+
 }

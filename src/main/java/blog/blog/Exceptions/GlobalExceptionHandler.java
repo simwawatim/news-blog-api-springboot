@@ -61,7 +61,7 @@ public class GlobalExceptionHandler {
                 ApiResponse.builder()
                         .status("error")
                         .status_code(500)
-                        .message(ex.getMessage()) // show real message
+                        .message(ex.getMessage()) 
                         .data(null)
                         .build()
         );
