@@ -2,9 +2,13 @@ package blog.blog.Service;
 import blog.blog.DTOs.*;
 import blog.blog.Entities.Profile;
 import blog.blog.Entities.User;
+import blog.blog.Exceptions.EmailAlreadyExistsException;
+import blog.blog.Exceptions.UserNotFoundException;
 import blog.blog.Repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+
 import java.util.List;
 
 
@@ -39,6 +43,10 @@ public class UserService {
 
     public UserResponseDTO createUser(UserRequestDTO request) {
 
+        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+            throw new EmailAlreadyExistsException("Email already exists");
+        }
+
         User user = new User();
         user.setFullName(request.getFullName());
         user.setEmail(request.getEmail());
@@ -55,10 +63,35 @@ public class UserService {
         return mapToResponse(saved);
     }
 
+
      public UserResponseDTO getUserById(String id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
         return mapToResponse(user);
+    }
+
+    public UserResponseDTO updateUser(String id, UserRequestDTO request){
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+
+        user.setFullName(request.getFullName());
+        user.setEmail(request.getEmail());
+        
+        if (user.getProfile() == null){
+            Profile profile = new Profile();
+            profile.setUser(user);
+            user.setProfile(profile);
+        }
+        user.getProfile().setAddress(request.getAddress());
+        user.getProfile().setWebsite(request.getWebsite());
+
+        User saved = userRepository.save(user);
+        return mapToResponse(saved);
+    }
+
+    public void deleteUser(String id){
+        User user = userRepository.findById(id).orElseThrow(() -> new UserNotFoundException("User not found"));
+        userRepository.delete(user);
     }
 
 }
