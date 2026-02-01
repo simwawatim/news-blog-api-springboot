@@ -17,6 +17,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Collections;
 
+
 @Component
 @RequiredArgsConstructor
 public class JwtAuthFilter extends OncePerRequestFilter {
@@ -25,11 +26,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     private final UserRepository userRepository;
 
     @Override
-    protected void doFilterInternal(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            FilterChain filterChain
-    ) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request,
+                                    HttpServletResponse response,
+                                    FilterChain filterChain) throws ServletException, IOException {
 
         String authHeader = request.getHeader("Authorization");
 
@@ -38,19 +37,25 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
             try {
                 String userId = jwtUtil.extractUserId(token);
-
                 User user = userRepository.findById(userId).orElse(null);
 
                 if (user != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                     UsernamePasswordAuthenticationToken authToken =
                             new UsernamePasswordAuthenticationToken(user, null, Collections.emptyList());
-
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                 }
 
+            } catch (io.jsonwebtoken.ExpiredJwtException e) {
+                response.setContentType("application/json");
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.getWriter().write("{\"status\":\"error\",\"status_code\":401,\"message\":\"Token expired\",\"data\":null}");
+                return;
             } catch (Exception e) {
-                // invalid token, ignore and leave SecurityContext empty
+                response.setContentType("application/json");
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.getWriter().write("{\"status\":\"error\",\"status_code\":401,\"message\":\"Invalid token\",\"data\":null}");
+                return;
             }
         }
 
