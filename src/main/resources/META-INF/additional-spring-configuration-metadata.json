@@ -1,0 +1,5 @@
+{"properties": [{
+  "name": "springdoc.swagger-ui.server-url",
+  "type": "java.lang.String",
+  "description": "A description for 'springdoc.swagger-ui.server-url'"
+}]}

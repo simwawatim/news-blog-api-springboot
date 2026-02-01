@@ -7,6 +7,7 @@ import blog.blog.Exceptions.UserNotFoundException;
 import blog.blog.Repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 
 import java.util.List;
@@ -16,6 +17,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder; 
 
     private UserResponseDTO mapToResponse(User user) {
         UserResponseDTO dto = new UserResponseDTO();
@@ -50,7 +52,7 @@ public class UserService {
         User user = new User();
         user.setFullName(request.getFullName());
         user.setEmail(request.getEmail());
-        user.setPassword(request.getPassword());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
 
         Profile profile = new Profile();
         profile.setWebsite(request.getWebsite());
